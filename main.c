@@ -69,5 +69,10 @@ int main(int argc, char** argv){
 	puts(entire_input_file);
 	printf("\n\n");
 	tokenized = tokenize(entire_input_file, " ");
+	{strll* current = &tokenized;
+		for(;current != NULL; current = current->right){
+			printf("TOKEN IS:%s\n", current->text);
+		}
+	}
 	return 0;
 }
