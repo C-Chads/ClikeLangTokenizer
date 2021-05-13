@@ -115,11 +115,11 @@ static strll* parse_matched(strll* current_node, const char* tl, const char* tr)
 
 
 int main(int argc, char** argv){
-	char* larg; 
+	char* larg;  long i;
 	long local_search_point = 0;
 	larg = argv[0];
 	
-	for(int i = 1; i < argc; i++){
+	for(i = 1; i < argc; i++){
 		if(streq(larg,"-i"))
 			infilename = argv[i];
 		if(streq(larg,"-o"))
