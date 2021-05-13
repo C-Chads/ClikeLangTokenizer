@@ -1,4 +1,4 @@
-who | PROC{of {something}{suspicious}} | how? | where | when ;
+who | PROC{of {something}{suspicious}} following... | how? | where | when ;
 who | for what | how? | where | when ;
 who | for what | how? | where | when ;
 who | for what | how? | where | when ;

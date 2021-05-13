@@ -65,9 +65,9 @@ static strll* parse_matched(strll* current_node, const char* tl, const char* tr)
 	child_old = current_node->child;
 	current_node->child = STRUTIL_CALLOC(1, sizeof(strll));
 	current_node->child->right = child_old;
-	/*right_old = current_node->right;
+	right_old = current_node->right;
 	current_node->right = STRUTIL_CALLOC(1, sizeof(strll));
-	current_node->right->right = right_old;*/
+	current_node->right->right = right_old;
 	/*Inch along, incrementing on*/
 	{ char* begin;long off = 0;
 		char* metaproc = current_node->text + current_tl_location + len_tl;
@@ -102,8 +102,12 @@ static strll* parse_matched(strll* current_node, const char* tl, const char* tr)
 		{
 			char* text_old = current_node->text;
 			current_node->text = str_null_terminated_alloc(text_old, start_tl_location);
-			free(text_old);
+			
 			printf("\npre text is %s\n",current_node->text);
+
+			/*Grab the post-text.*/
+			current_node->right->text = strcatalloc(begin + off, "");
+			free(text_old);
 		}
 	}
 	return current_node->child;
