@@ -8,7 +8,6 @@ right- representing following tokens.
 child- representing this node.
 left- representing the node preceding in the AST.
 identification- what kind of node is this?
-
 */
 
 
@@ -163,11 +162,9 @@ int main(int argc, char** argv){
 	printf("\n\n");
 	puts(entire_input_file);
 	printf("\n\n");
-	tokenized = parse_matched(entire_input_file, "{", "}");
+	/*tokenized = parse_matched(entire_input_file, "{", "}");*/
 	
-	/*
 	tokenized = tokenize(entire_input_file, ";");
-	*/
 	{strll* current = &tokenized;
 		for(;current != NULL; current = current->right){
 			if(current->text)
