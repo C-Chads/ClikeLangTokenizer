@@ -165,6 +165,30 @@ int main(int argc, char** argv){
 	/*tokenized = parse_matched(entire_input_file, "{", "}");*/
 	
 	tokenized = tokenize(entire_input_file, ";");
+	/*
+	{strll* current = &tokenized;
+		for(;current != NULL; current = current->right){
+			if(current->text)
+				printf("TOKEN IS:%s\n", current->text);
+			if(current->child)
+				printf("CHILD IS:%s\n", current->child->text);
+		}
+	}*/
+	/**/
+
+	{strll* current_meta = &tokenized;
+		for(;current_meta != NULL && current_meta->text != NULL; current_meta = current_meta->right)
+		{
+			strll* current = current_meta;
+			strll* retval = current_meta;
+			do{
+				current = retval;
+				current_meta = retval;
+				retval = consume_until(current, "|", 0);
+			}while(retval != current);
+		}
+	}
+
 	{strll* current = &tokenized;
 		for(;current != NULL; current = current->right){
 			if(current->text)
@@ -173,6 +197,5 @@ int main(int argc, char** argv){
 				printf("CHILD IS:%s\n", current->child->text);
 		}
 	}
-	
 	return 0;
 }
