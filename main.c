@@ -31,6 +31,12 @@ strll tokenized = {0};
 			text between tl and tr.
 		right: all text following.
 */
+static long strll_len(strll* head){
+	long len = 1;
+	while(head->right) {head = head->right; len++;}
+	return len;
+}
+
 static strll parse_matched(char* alloced_text, const char* tl, const char* tr){
 	strll result = {0};strll* current;
 	long current_tl_location; long counter = 1;
@@ -158,6 +164,7 @@ int main(int argc, char** argv){
 	puts(entire_input_file);
 	printf("\n\n");
 	tokenized = parse_matched(entire_input_file, "{", "}");
+	
 	/*
 	tokenized = tokenize(entire_input_file, ";");
 	*/
