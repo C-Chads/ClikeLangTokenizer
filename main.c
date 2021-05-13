@@ -36,42 +36,41 @@ static long strll_len(strll* head){
 	return len;
 }
 
-static strll parse_matched(char* alloced_text, const char* tl, const char* tr){
-	strll result = {0};strll* current;
+static strll* parse_matched(strll* current_node, const char* tl, const char* tr){
+	strll* current_child; strll* child_old; strll* right_old;
 	long current_tl_location; long counter = 1;
-	long current_tr_location;
+	long current_tr_location; long start_tl_location;
 	long len_tl;
 	long len_tr;
 	len_tl = strlen(tl);
 	len_tr = strlen(tr);
-	current = &result; /*A bit redundant, since current never changes? but...*/
-	current_tl_location = strfind(alloced_text, tl);
-	current_tr_location = strfind(alloced_text, tr);
-	if(current_tr_location != -1 && 
+	current_tl_location = strfind(current_node->text, tl);
+	start_tl_location = current_tl_location;
+	current_tr_location = strfind(current_node->text, tr);
+	if(current_tr_location > -1 && 
 		current_tr_location < current_tl_location){
 		printf("\n<SYNTAX ERROR> %s before %s\n", tr, tl);
 		exit(1);
 	}
-	if(current_tl_location == -1 &&
-		current_tr_location != -1){
-		printf("\n<SYNTAX ERROR> You have a %s, but no matching %s ?", tr, tl);
-	}
-	current->text = str_null_terminated_alloc(alloced_text,current_tl_location);
-	{char* temp;
-		temp = strcatalloc(alloced_text + current_tl_location + len_tl, "");
-		free(alloced_text);
-		alloced_text = temp;
+	if(current_tr_location == -1 &&
+		current_tl_location != -1){
+		printf("\n<SYNTAX ERROR> You have a %s, but no matching %s ?", tl, tr);
+		exit(1);
 	}
 	/*We could not find a bracketed pair!*/
 	if(current_tl_location == -1){
-		return result;
+		return current_node;
 	}
-	
-	current->child = STRUTIL_CALLOC(1, sizeof(strll));
-	current->right = STRUTIL_CALLOC(1, sizeof(strll));
+	current_child = current_node->child;
+	child_old = current_node->child;
+	current_node->child = STRUTIL_CALLOC(1, sizeof(strll));
+	current_node->child->right = child_old;
+	/*right_old = current_node->right;
+	current_node->right = STRUTIL_CALLOC(1, sizeof(strll));
+	current_node->right->right = right_old;*/
 	/*Inch along, incrementing on*/
 	{ char* begin;long off = 0;
-		char* metaproc = alloced_text;
+		char* metaproc = current_node->text + current_tl_location + len_tl;
 		begin = metaproc;
 		current_tl_location = strfind(metaproc, tl);
 		current_tr_location = strfind(metaproc, tr);
@@ -98,12 +97,16 @@ static strll parse_matched(char* alloced_text, const char* tl, const char* tr){
 			printf("\n<INTERNAL ERROR> Counter for %s,%s group somehow went negative.\n", tl, tr);
 			exit(1);
 		}
-		current->child->text = str_null_terminated_alloc(begin, off - len_tr);
-		printf("\nencapsulated text is %s\n",current->child->text );
-		current->right->text = strcatalloc(begin + off, "");
-		printf("\nright text is %s\n",current->right->text);
+		current_node->child->text = str_null_terminated_alloc(begin, off - len_tr);
+		printf("\nencapsulated text is %s\n",current_node->child->text );
+		{
+			char* text_old = current_node->text;
+			current_node->text = str_null_terminated_alloc(text_old, start_tl_location);
+			free(text_old);
+			printf("\npre text is %s\n",current_node->text);
+		}
 	}
-	return result;
+	return current_node->child;
 }
 
 
@@ -189,12 +192,19 @@ int main(int argc, char** argv){
 		}
 	}
 
+	{strll* current_meta = &tokenized;
+		for(;current_meta != NULL && current_meta->text != NULL; current_meta = current_meta->right)
+		{
+				parse_matched(current_meta, "{", "}");
+		}
+	}
+
 	{strll* current = &tokenized;
 		for(;current != NULL; current = current->right){
 			if(current->text)
 				printf("TOKEN IS:%s\n", current->text);
 			if(current->child)
-				printf("CHILD IS:%s\n", current->child->text);
+				printf("\tCHILD IS:%s\n", current->child->text);
 		}
 	}
 	return 0;
