@@ -38,7 +38,21 @@ static long strll_len(strll* head){
 }
 
 
-
+static void strll_show(strll* current, long lvl){
+	{long i; /*strll* current = &tokenized;*/
+		for(;current != NULL; current = current->right){
+			if(current->text){
+				for(i = 0; i < lvl; i++) printf("\t");
+				printf("TOKEN IS:'%s'\n", current->text);
+			}
+			if(current->child)
+			{	for(i = 0; i < lvl; i++) printf("\t");
+				printf("CHILDREN:\n");
+				strll_show(current->child, lvl + 1);
+			}
+		}
+	}
+}
 
 int main(int argc, char** argv){
 	char* larg;  long i;
@@ -76,7 +90,7 @@ int main(int argc, char** argv){
 					if(entire_input_file[i] < 32 || entire_input_file[i] > 126){
 						if(entire_input_file[i] != '\n')
 							entire_input_file[i] = ' ';
-						else if(!(i > 0 && entire_input_file[i-1] == '\\')){
+						else if(!(i > 0 && entire_input_file[i-1] != '\\')){
 							entire_input_file[i] = ';';\
 						}
 					}
@@ -114,10 +128,12 @@ int main(int argc, char** argv){
 		{
 			strll* current = current_meta;
 			strll* retval = current_meta;
-			do{
+			do{ 
 				current = retval;
 				current_meta = retval;
 				retval = consume_until(current, "|", 0);
+				if(retval != current)
+					parent_right_node(current);
 			}while(retval != current);
 		}
 	}
@@ -128,14 +144,7 @@ int main(int argc, char** argv){
 				parse_matched(current_meta, "{", "}");
 		}
 	}
+	strll_show(&tokenized, 0);
 
-	{strll* current = &tokenized;
-		for(;current != NULL; current = current->right){
-			if(current->text)
-				printf("TOKEN IS:%s\n", current->text);
-			if(current->child)
-				printf("\tCHILD IS:%s\n", current->child->text);
-		}
-	}
 	return 0;
 }
