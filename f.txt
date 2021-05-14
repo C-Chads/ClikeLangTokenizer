@@ -1,6 +1,7 @@
-who | PROC{of {something}{suspicious}} following... | how? | where | when;
-who | for what | how? | where | when ;f
-who | for what | how? | where | when ;f
-who | for what | how? | where | when ;f
-who | for what | how? | where | when ;f
-who | for what | how? | where | when ;f
+	who    fuck ; PROC{of {something}{suspicious}{but bad{not bad enough to matter   }}} following... ; how? ; where ; when;
+who ; for what ; how the fuck? "\\  \" ;Hello!" ; where ; when ;f
+who ; for what ; how? ; where ; when ;f
+who ; for what ; how? ; where ; when ;f
+who ; for what ; how? ; where ; when ;f
+who ; for what ; how? ; where ; when ;f;f; 
+       int a = b + 5; a += 5 + 7;
