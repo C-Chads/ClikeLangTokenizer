@@ -126,9 +126,6 @@ int main(int argc, char** argv){
 	
 	tokenized = tokenize(entire_input_file, "\n");
 	puts("~~~~~AFTER TOKENIZATION~~~~~");
-	/*
-		TODO: Write smart tokenizer.
-	*/
 	strll_show(&tokenized, 0);
 	puts("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	{strll* current_meta = &tokenized;
