@@ -32,6 +32,7 @@ strll tokenized = {0};
 */
 static long strll_len(strll* head){
 	long len = 1;
+	if(!head) return 0;
 	while(head->right) {head = head->right; len++;}
 	return len;
 }
