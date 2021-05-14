@@ -45,6 +45,11 @@ static void strll_show(strll* current, long lvl){
 				for(i = 0; i < lvl; i++) printf("\t");
 				printf("TOKEN IS:'%s'\n", current->text);
 			}
+			if(current->left)
+			{	for(i = 0; i < lvl; i++) printf("\t");
+				printf("LCHILDREN:\n");
+				strll_show(current->left, lvl + 1);
+			}
 			if(current->child)
 			{	for(i = 0; i < lvl; i++) printf("\t");
 				printf("CHILDREN:\n");
@@ -90,7 +95,7 @@ int main(int argc, char** argv){
 					if(entire_input_file[i] < 32 || entire_input_file[i] > 126){
 						if(entire_input_file[i] != '\n')
 							entire_input_file[i] = ' ';
-						else if(!(i > 0 && entire_input_file[i-1] != '\\')){
+						else if((i > 0 && entire_input_file[i-1] != '\\')){
 							entire_input_file[i] = ';';\
 						}
 					}
