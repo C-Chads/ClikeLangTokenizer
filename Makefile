@@ -5,4 +5,4 @@ all:
 	$(CC) $(CFLAGS) main.c -o ctok -lm -g
 
 clean:
-	rm -f *.exe *.out *.bin *.o
+	rm -f *.exe *.out *.bin *.o ctok
