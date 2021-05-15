@@ -3,47 +3,23 @@
 #include <stdlib.h>
 #include <math.h>
 
-/*
-right- representing following tokens.
-child- representing this node.
-left- representing the node preceding in the AST.
-identification- what kind of node is this?
-*/
-
 
 char* infilename = NULL;
-char* outfilename = "default_out.bin";
 FILE* ifile = NULL;
-FILE* ofile = NULL;
 char* entire_input_file;
 unsigned long entire_input_file_len = 0;
 strll tokenized = {0};
-
-/*DESCRIPTION-
-	parses a single matched pair from allocated text.
-	the tree looks like this-
-	result
-		text: text immediately preceding the brackets.
-		left: Null
-		child:
-			text:
-			text between tl and tr.
-		right: all text following.
-*/
 static long strll_len(strll* head){
 	long len = 1;
 	if(!head) return 0;
 	while(head->right) {head = head->right; len++;}
 	return len;
 }
-
-
 static void strll_show(strll* current, long lvl){
-	{long i; /*strll* current = &tokenized;*/
+	{long i; 
 		for(;current != NULL; current = current->right){
 			if(current->text){
 				for(i = 0; i < lvl; i++) printf("\t");
-				/*printf("TOKEN IS:'%s'\n", current->text);*/
 				printf("<TOK>%s</TOK>\n",current->text);
 			}
 			if(current->left)
@@ -96,8 +72,8 @@ static void tokenizer(strll* work){
 	const char* STRING_END = 		"\"";
 	const char* CHAR_BEGIN = 		"\'";
 	const char* CHAR_END = 			"\'";
-	const char* COMMENT_BEGIN = 	"$";
-	const char* COMMENT_END = 		"$";
+	const char* COMMENT_BEGIN = 	"/*";
+	const char* COMMENT_END = 		"*/";
 	long mode = 0; long i = 0;
 	for(;i < (long)strlen(work->text); i++){
 		done_selecting_mode:;
@@ -195,7 +171,7 @@ static strll tokenize_with_escapes(char* alloced_text, const char* token, const 
 			alloced_text[current_token_location - 1] == escape
 		){
 			long escape_count = 1; long current_token_location_2;
-			/*Count the number of escapes. if it's odd? Then this is a */
+			/*Count the number of escapes. if its odd? Then this is a */
 			for(escape_count = 1;(current_token_location - escape_count) >= 0;escape_count++){
 				if(alloced_text[current_token_location-escape_count] != escape) {escape_count--;break;}
 			}
@@ -229,64 +205,22 @@ static strll tokenize_with_escapes(char* alloced_text, const char* token, const 
 }
 
 int main(int argc, char** argv){
-	char* larg;  long i;
-	larg = argv[0];
-	
-	for(i = 1; i < argc; i++){
-		if(streq(larg,"-i"))
-			infilename = argv[i];
-		if(streq(larg,"-o"))
-			outfilename = argv[i];
-		larg = argv[i];
-	}
+	if(argc > 1) infilename = argv[1];
 	if(!infilename){
-		puts("<COMPILER ERROR> No input file");
-		exit(1);
-	}
-	if(!outfilename){
-		puts("<COMPILER ERROR> No output file");
+		puts("<TOKENIZER ERROR> No input file");
 		exit(1);
 	}
 	ifile = fopen(infilename, "rb");
-	ofile = fopen(outfilename, "wb");
-	if(!ifile || !ofile){
-		puts("<COMPILER ERROR> Cannot open either the input or output file");
+	if(!ifile){
+		puts("<TOKENIZER ERROR> Cannot open the input file");
 		exit(1);
 	}
 	entire_input_file = read_file_into_alloced_buffer(ifile, &entire_input_file_len);
-	/*if(entire_input_file_len > 0) entire_input_file[entire_input_file_len-1] = '\0';*/
 	fclose(ifile); ifile = NULL;
-	/*Find all instances of illegal characters and replace them with spaces.*/
-	/*
-	{long i = 0; long len = strlen(entire_input_file);
-		for(i = 0; i < len; i++)
-			{
-				if(entire_input_file[i])
-					if(entire_input_file[i] < 32 || entire_input_file[i] > 126){
-						if(entire_input_file[i] != '\n')
-							entire_input_file[i] = ' ';
-						else if((i > 0 && entire_input_file[i-1] != '\\')){
-							entire_input_file[i] = ';';\
-						}
-					}
-			}
-	}
-	*/
-	/*Force widening of double parentheses groups.*/
-
-	/*
-	printf("\n\n");
-	puts(entire_input_file);
-	printf("\n\n");
-	*/
-	/*tokenized = parse_matched(entire_input_file, "{", "}");*/
 	
 	tokenized.text = entire_input_file;
 	tokenizer(&tokenized);
-	/*tokenized = tokenize_with_escapes(entire_input_file, ";", '\\');*/
-	puts("~~~~~AFTER TOKENIZATION~~~~~");
-	strll_show(&tokenized, 0);
-	puts("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	/*
 	{strll* current_meta = &tokenized;
 		for(;current_meta != NULL && current_meta->text != NULL; current_meta = current_meta->right)
 		{
@@ -297,10 +231,7 @@ int main(int argc, char** argv){
 				current = retval;
 				current_meta = retval;
 				if(current->text){
-					 /*long loc_next_semicolon;*/
 					long loc_firstquote = strfind(current->text, "\"");
-					/*loc_next_semicolon = strfind(current->text, ";");*/
-					/*loc_next_semicolon = -1;*/
 					if(loc_firstquote > -1)
 					{ long ii;
 						if(loc_firstquote > 0){
@@ -312,7 +243,8 @@ int main(int argc, char** argv){
 							if(current->text[ii] == '\\' && current->text[ii] != '\0'){
 								ii++;continue; 
 							} else if(current->text[ii] == '\\' && current->text[ii] == '\0'){
-								puts("ERROR: unmatched quote group.");
+								puts("ERROR: unmatched quote group. Reached EOS.");
+								printf("\n\nWe are parsing this string here:\n%s", current->text);
 								exit(1);
 							}
 							if(current->text[ii] == '\"'){
@@ -321,6 +253,8 @@ int main(int argc, char** argv){
 						}
 						if(current->text[ii] != '\"'){
 							puts("ERROR: unmatched quote group.");
+							if(current->text[ii] == '\0')puts("Reached EOS.");
+							printf("\n\nWe are parsing this string here:\n%s", current->text);
 							exit(1);
 						}
 						retval = consume_bytes(current, ii+1); 
@@ -334,10 +268,10 @@ int main(int argc, char** argv){
 			}while(retval != current);
 		}
 	}
+	*/
 	{strll* current_meta = &tokenized;
 		for(;current_meta != NULL && current_meta->text != NULL; current_meta = current_meta->right){
 			if(isspace(current_meta->text[0]) && current_meta->text[0] != '\n'){
-				/*DEBUGGING PURPOSES... Make sure the whole token is white space.*/
 				{
 					unsigned long i = 0;for(;i<strlen(current_meta->text);i++){
 						if(!isspace(current_meta->text[i]))
@@ -365,7 +299,7 @@ int main(int argc, char** argv){
 					(isspace(current_meta->text[0]) &&
 					isspace(current_meta->right->text[0])))
 			){
-				/*pull it out!*/
+				/*pull it's out!*/
 				strll* kill_me = current_meta->right;
 				strll* right_right = current_meta->right->right;
 				current_meta->right = right_right;
@@ -375,37 +309,7 @@ int main(int argc, char** argv){
 			}
 		}
 	}
-	/*
-	{strll* current_meta = &tokenized;
-			for(;current_meta != NULL && current_meta->text != NULL; current_meta = current_meta->right){
-					while(
-					current_meta->text && 
-							(
-								isspace(current_meta->text[0])
-							)
-					)
-					{
-						char* text_old = current_meta->text;
-						char* text_new = strcatalloc(text_old + 1, "");
-						free(text_old);
-						current_meta->text = text_new;
-					}
-					while(
-					current_meta->text && 
-							(	strlen(current_meta->text) > 0 &&
-								isspace(current_meta->text[strlen(current_meta->text)-1])
-							)
-					)
-					{
-						char* text_old = current_meta->text;
-						char* text_new = str_null_terminated_alloc(text_old, strlen(text_old) - 1);
-						free(text_old);
-						current_meta->text = text_new;
-					}
-			}
-	}
-	*/
-	/*strll_recursive_parse_matched(&tokenized, "{", "}");*/
 	strll_show(&tokenized, 0);
 	return 0;
 }
+/*End of file comment.*/
