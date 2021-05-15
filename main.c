@@ -299,7 +299,7 @@ int main(int argc, char** argv){
 					(isspace(current_meta->text[0]) &&
 					isspace(current_meta->right->text[0])))
 			){
-				/*pull it's out!*/
+				/*pull it out!*/
 				strll* kill_me = current_meta->right;
 				strll* right_right = current_meta->right->right;
 				current_meta->right = right_right;
