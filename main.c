@@ -43,17 +43,22 @@ static void strll_show(strll* current, long lvl){
 		for(;current != NULL; current = current->right){
 			if(current->text){
 				for(i = 0; i < lvl; i++) printf("\t");
-				printf("TOKEN IS:'%s'\n", current->text);
+				/*printf("TOKEN IS:'%s'\n", current->text);*/
+				printf("<TOK>%s</TOK>\n",current->text);
 			}
 			if(current->left)
 			{	for(i = 0; i < lvl; i++) printf("\t");
-				printf("LCHILDREN:\n");
+				printf("<LCHILDREN>\n");
 				strll_show(current->left, lvl + 1);
+				for(i = 0; i < lvl; i++) printf("\t");
+				printf("</LCHILDREN>\n");
 			}
 			if(current->child)
 			{	for(i = 0; i < lvl; i++) printf("\t");
-				printf("CHILDREN:\n");
+				printf("<CHILDREN>\n");
 				strll_show(current->child, lvl + 1);
+				for(i = 0; i < lvl; i++) printf("\t");
+				printf("</CHILDREN>\n");
 			}
 		}
 	}
@@ -97,27 +102,7 @@ static void tokenizer(strll* work){
 	for(;i < (long)strlen(work->text); i++){
 		done_selecting_mode:;
 		if(mode != 2 && mode != 3 && mode != 4){ /*Not in a string or char literal or comment.*/
-			if(work->text[i] == '{'/*}*/){ /*Whatever we're doing? It's just ended.*/
-				if(i) work = consume_bytes(work, i);
-				work = consume_bytes(work, 1);
-				i = -1;mode = -1;
-				continue;
-			} else if(work->text[i] == /*{*/'}'){ /*Whatever we're doing? It's just ended.*/
-				if(i) work = consume_bytes(work, i);
-				work = consume_bytes(work, 1);
-				i = -1;mode = -1;
-				continue;
-			} else if(work->text[i] == '('/*)*/){ /*Whatever we're doing? It's just ended.*/
-				if(i) work = consume_bytes(work, i);
-				work = consume_bytes(work, 1);
-				i = -1;mode = -1;
-				continue;
-			} else if(work->text[i] == /*(*/')'){ /*Whatever we're doing? It's just ended.*/
-				if(i) work = consume_bytes(work, i);
-				work = consume_bytes(work, 1);
-				i = -1;mode = -1;
-				continue;
-			}
+			
 		}
 		if(mode == -1){/*Determine what our next mode should be.*/
 			if(i != 0){
@@ -138,6 +123,11 @@ static void tokenizer(strll* work){
 				i+= strlen(CHAR_BEGIN);
 				goto done_selecting_mode;
 			}
+			if(isspace(work->text[i]) && work->text[i] != '\n'){
+				mode = 0;
+				i++;
+				goto done_selecting_mode;
+			}
 			if(isUnusual(work->text[i])){ /*Merits its own thing.*/
 				work = consume_bytes(work, 1);
 				i = -1;
@@ -146,7 +136,7 @@ static void tokenizer(strll* work){
 			mode = 1; 
 		}
 		if(mode == 0){ /*reading whitespace.*/
-			if(isspace(work->text[i])) continue; 
+			if(isspace(work->text[i]) && work->text[i]!='\n') continue; 
 			work = consume_bytes(work, i); i=-1; mode = -1; continue;
 		}
 		if(mode == 1){ /*contiguous non-space characters.*/
@@ -346,7 +336,7 @@ int main(int argc, char** argv){
 	}
 	{strll* current_meta = &tokenized;
 		for(;current_meta != NULL && current_meta->text != NULL; current_meta = current_meta->right){
-			if(isspace(current_meta->text[0])){
+			if(isspace(current_meta->text[0]) && current_meta->text[0] != '\n'){
 				/*DEBUGGING PURPOSES... Make sure the whole token is white space.*/
 				{
 					unsigned long i = 0;for(;i<strlen(current_meta->text);i++){
@@ -359,6 +349,10 @@ int main(int argc, char** argv){
 				}
 				free(current_meta->text);
 				current_meta->text = strcatalloc(" ","");
+			}
+			if(current_meta->text[0] == '\n'){
+				free(current_meta->text);
+				current_meta->text = strcatalloc("<newline>","");
 			}
 		}
 	}

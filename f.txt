@@ -1,4 +1,4 @@
-	who    fuck ; PROC{
+who    fuck ; PROC{
 	of {something}{suspicious}{but bad{not bad enough to matter   }}
 	} following... ; how? ; where ; when;
 who ; for what ; how the fuck? "\\  \" \\\;Hello!" ; where ; when ;f
