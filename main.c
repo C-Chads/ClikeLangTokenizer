@@ -305,7 +305,6 @@ int main(int argc, char** argv){
 				current_meta->right = right_right;
 				free(kill_me->text);
 				free(kill_me);
-				
 			}
 		}
 	}
