@@ -20,21 +20,30 @@ static void strll_show(strll* current, long lvl){
 		for(;current != NULL; current = current->right){
 			if(current->text){
 				for(i = 0; i < lvl; i++) printf("\t");
-				printf("<TOK>%s</TOK>\n",current->text);
+				if(
+				streq(current->text,"<\\n>") || streq(current->text,"<\\r>")
+				)
+					printf("%s\n",current->text);
+				/*else if(current->text[0] == '<' || current->text[0] == '>' || current->text[0] == '\\')
+					printf("<TK>\\%s</TK>\n",current->text);*/
+				else if(current->text[0] == ' ' || current->text[0] == '\t')
+					printf("<space/>\n");
+				else
+					printf("<TK>%s</TK>\n",current->text);
 			}
 			if(current->left)
 			{	for(i = 0; i < lvl; i++) printf("\t");
-				printf("<LCHILDREN>\n");
+				printf("<LC>\n");
 				strll_show(current->left, lvl + 1);
 				for(i = 0; i < lvl; i++) printf("\t");
-				printf("</LCHILDREN>\n");
+				printf("</LC>\n");
 			}
 			if(current->child)
 			{	for(i = 0; i < lvl; i++) printf("\t");
-				printf("<CHILDREN>\n");
+				printf("<C>\n");
 				strll_show(current->child, lvl + 1);
 				for(i = 0; i < lvl; i++) printf("\t");
-				printf("</CHILDREN>\n");
+				printf("</C>\n");
 			}
 		}
 	}
@@ -72,14 +81,12 @@ static void tokenizer(strll* work){
 	const char* STRING_END = 		"\"";
 	const char* CHAR_BEGIN = 		"\'";
 	const char* CHAR_END = 			"\'";
+	/*C-style comments.*/
 	const char* COMMENT_BEGIN = 	"/*";
 	const char* COMMENT_END = 		"*/";
 	long mode = 0; long i = 0;
 	for(;i < (long)strlen(work->text); i++){
 		done_selecting_mode:;
-		if(mode != 2 && mode != 3 && mode != 4){ /*Not in a string or char literal or comment.*/
-			
-		}
 		if(mode == -1){/*Determine what our next mode should be.*/
 			if(i != 0){
 				puts("Something quite unusual has happened... mode is negative one, but i is not zero!");
@@ -286,7 +293,11 @@ int main(int argc, char** argv){
 			}
 			if(current_meta->text[0] == '\n'){
 				free(current_meta->text);
-				current_meta->text = strcatalloc("<newline>","");
+				current_meta->text = strcatalloc("<\\n>","");
+			}
+			if(current_meta->text[0] == '\r'){
+				free(current_meta->text);
+				current_meta->text = strcatalloc("<\\r>","");
 			}
 		}
 	}
