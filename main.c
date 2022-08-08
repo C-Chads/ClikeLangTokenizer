@@ -227,55 +227,6 @@ int main(int argc, char** argv){
 	
 	tokenized.text = entire_input_file;
 	tokenizer(&tokenized);
-	/*
-	{strll* current_meta = &tokenized;
-		for(;current_meta != NULL && current_meta->text != NULL; current_meta = current_meta->right)
-		{
-	
-			strll* current = current_meta;
-			strll* retval = current_meta;
-			do{
-				current = retval;
-				current_meta = retval;
-				if(current->text){
-					long loc_firstquote = strfind(current->text, "\"");
-					if(loc_firstquote > -1)
-					{ long ii;
-						if(loc_firstquote > 0){
-							retval = consume_bytes(current, loc_firstquote);
-							current = retval;
-							current_meta = retval;
-						} else {}
-						for(ii = 1; current->text[ii]!= '\0'; ii++){
-							if(current->text[ii] == '\\' && current->text[ii] != '\0'){
-								ii++;continue; 
-							} else if(current->text[ii] == '\\' && current->text[ii] == '\0'){
-								puts("ERROR: unmatched quote group. Reached EOS.");
-								printf("\n\nWe are parsing this string here:\n%s", current->text);
-								exit(1);
-							}
-							if(current->text[ii] == '\"'){
-								break;
-							}
-						}
-						if(current->text[ii] != '\"'){
-							puts("ERROR: unmatched quote group.");
-							if(current->text[ii] == '\0')puts("Reached EOS.");
-							printf("\n\nWe are parsing this string here:\n%s", current->text);
-							exit(1);
-						}
-						retval = consume_bytes(current, ii+1); 
-						current = retval;
-						current_meta = retval;
-					}
-				} else {
-					puts("Internal Error.");
-					exit(1);
-				}
-			}while(retval != current);
-		}
-	}
-	*/
 	{strll* current_meta = &tokenized;
 		for(;current_meta != NULL && current_meta->text != NULL; current_meta = current_meta->right){
 			if(isspace(current_meta->text[0]) && current_meta->text[0] != '\n'){
